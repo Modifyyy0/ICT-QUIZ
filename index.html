@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz App</title>
+    <title>Kazakh Culture Quiz</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -280,6 +280,19 @@
             gap: 8px;
         }
 
+        .siren-container {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .siren-text {
+            color: #dc2626;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
         @media (max-width: 480px) {
             .card {
                 padding: 24px;
@@ -311,7 +324,7 @@
         <!-- Language Selection Screen -->
         <div id="language-screen" class="screen active">
             <div class="card">
-                <h1 id="welcome-title">Welcome to Quiz!</h1>
+                <h1 id="welcome-title">Kazakh Culture Quiz!</h1>
                 <button id="btn-en" class="btn btn-en">English</button>
                 <button id="btn-zh" class="btn btn-zh">中文</button>
             </div>
@@ -349,11 +362,8 @@
                     <div class="score-circle">
                         <div class="score-text" id="final-score">0/10</div>
                     </div>
-                    <h2 id="results-title" class="results-title">Congratulations!</h2>
-                    <div class="results-message">
-                        <div id="results-score" class="results-score">0/10 Correct Answers!</div>
-                        <div id="results-instruction" class="results-instruction">Show this screen to the Kazakh students to get your prizes!</div>
-                    </div>
+                    <h2 id="results-title" class="results-title">Results!</h2>
+                    <div id="results-message" class="results-message"></div>
                     <button id="btn-restart" class="btn btn-restart">
                         <i class="fas fa-redo"></i>
                         <span id="restart-text">Take Quiz Again</span>
@@ -364,150 +374,193 @@
     </div>
 
     <script>
+        // Create siren audio
+        const sirenAudio = new Audio();
+        sirenAudio.src = "audio/wav;base64,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";
+        
         // Quiz data
         const quizData = {
             en: [
                 {
-                    question: "What is the capital of France?",
-                    image: "https://placehold.co/400x300/4F46E5/FFFFFF?text=Paris",
-                    options: ["London", "Berlin", "Paris", "Madrid"],
-                    correctAnswer: 2,
-                    explanation: "Paris is the capital and most populous city of France."
-                },
-                {
-                    question: "Which planet is known as the Red Planet?",
-                    image: "https://placehold.co/400x300/DC2626/FFFFFF?text=Mars",
-                    options: ["Venus", "Mars", "Jupiter", "Saturn"],
+                    question: "When a Kazakh says 'Go drink some tea', it means:",
+                    image: "https://placehold.co/400x300/8B5CF6/FFFFFF?text=Tea+Time",
+                    options: ["Just tea", "Tea, 10 dishes, and 3 hours of conversation"],
                     correctAnswer: 1,
-                    explanation: "Mars appears reddish due to iron oxide (rust) on its surface."
+                    explanation: "In Kazakh culture, 'drink tea' is an invitation for a full feast."
                 },
                 {
-                    question: "What is the largest mammal in the world?",
-                    image: "https://placehold.co/400x300/059669/FFFFFF?text=Blue+Whale",
-                    options: ["Elephant", "Giraffe", "Blue Whale", "Hippopotamus"],
-                    correctAnswer: 2,
-                    explanation: "The blue whale is the largest animal ever known to have existed."
-                },
-                {
-                    question: "Which element has the chemical symbol 'O'?",
-                    image: "https://placehold.co/400x300/7C3AED/FFFFFF?text=Oxygen",
-                    options: ["Gold", "Oxygen", "Osmium", "Oganesson"],
+                    question: "What does 'mother's brother' mean for Kazakhs?",
+                    image: "https://placehold.co/400x300/EF4444/FFFFFF?text=Naǵashy",
+                    options: ["Delivery guy", "Free restaurant"],
                     correctAnswer: 1,
-                    explanation: "Oxygen is essential for human respiration and has the symbol 'O'."
+                    explanation: "Mother's side of the family are obligated to feed you for free."
                 },
                 {
-                    question: "What is the tallest mountain in the world?",
-                    image: "https://placehold.co/400x300/1E40AF/FFFFFF?text=Mount+Everest",
-                    options: ["K2", "Kangchenjunga", "Mount Everest", "Lhotse"],
-                    correctAnswer: 2,
-                    explanation: "Mount Everest stands at 8,848.86 meters (29,031.7 feet) above sea level."
-                },
-                {
-                    question: "Which country is known as the Land of the Rising Sun?",
-                    image: "https://placehold.co/400x300/DC2626/FFFFFF?text=Japan",
-                    options: ["China", "Korea", "Japan", "Thailand"],
-                    correctAnswer: 2,
-                    explanation: "Japan is called the Land of the Rising Sun due to its eastern location."
-                },
-                {
-                    question: "What is the largest ocean on Earth?",
-                    image: "https://placehold.co/400x300/0891B2/FFFFFF?text=Pacific+Ocean",
-                    options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+                    question: "Math question: If invited to a wedding at 7 PM, you should arrive at:",
+                    image: "https://placehold.co/400x300/10B981/FFFFFF?text=Wedding",
+                    options: ["6:30 PM", "7:00 PM", "8:00 PM", "9:00 PM"],
                     correctAnswer: 3,
-                    explanation: "The Pacific Ocean covers more than 60 million square miles."
+                    explanation: "Kazakh time is flexible! 7 PM invitation means you can arrive anytime, even at 9."
                 },
                 {
-                    question: "Which animal is known as the 'Ship of the Desert'?",
-                    image: "https://placehold.co/400x300/F59E0B/FFFFFF?text=Camel",
-                    options: ["Horse", "Elephant", "Camel", "Donkey"],
-                    correctAnswer: 2,
-                    explanation: "Camels are well-adapted to desert conditions and can carry heavy loads."
+                    question: "If Kazakh people says (Did you come?), they actually mean:",
+                    image: "https://placehold.co/400x300/F59E0B/FFFFFF?text=Greetings",
+                    options: ["Are you here?", "Where have you been? I missed you!"],
+                    correctAnswer: 1,
+                    explanation: "It's not about your arrival, it's about expressing how much they missed you."
                 },
                 {
-                    question: "What is the main ingredient in guacamole?",
-                    image: "https://placehold.co/400x300/16A34A/FFFFFF?text=Avocado",
-                    options: ["Tomato", "Onion", "Avocado", "Lime"],
-                    correctAnswer: 2,
-                    explanation: "Avocado is the primary ingredient that gives guacamole its creamy texture."
+                    question: "When visiting a Kazakh home, you must:",
+                    image: "https://placehold.co/400x300/06B6D4/FFFFFF?text=Hospitality",
+                    options: ["Bring a small gift", "Refuse food 3 times before accepting"],
+                    correctAnswer: 1,
+                    explanation: "Refusing food shows respect, but they'll insist until you accept."
                 },
                 {
-                    question: "Which famous scientist developed the theory of relativity?",
-                    image: "https://placehold.co/400x300/78716C/FFFFFF?text=Einstein",
-                    options: ["Isaac Newton", "Galileo Galilei", "Albert Einstein", "Stephen Hawking"],
-                    correctAnswer: 2,
-                    explanation: "Albert Einstein revolutionized physics with his theory of relativity."
+                    question: "The most important thing at a Kazakh dining table is:",
+                    image: "https://placehold.co/400x300/8B5CF6/FFFFFF?text=Dastarkhan",
+                    options: ["Having enough chairs", "Never letting the guest's plate be empty"],
+                    correctAnswer: 1,
+                    explanation: "A good host keeps refilling your plate - it's a sign of respect and care, they will even give you their seats."
+                },
+                {
+                    question: "If a Kazakh elder offers you kumys (fermented horse's milk), you should:",
+                    image: "https://placehold.co/400x300/16A34A/FFFFFF?text=Kumys",
+                    options: ["Politely decline", "Drink it all and ask for more."],
+                    correctAnswer: 1,
+                    explanation: "Refusing kumys can be seen as disrespectful. Better to try at least a little bit"
+                },
+                {
+                    question: "When toasting at a Kazakh celebration, you should:",
+                    image: "https://placehold.co/400x300/DC2626/FFFFFF?text=Toast",
+                    options: ["Drink quickly", "Hold your glass lower than elders"],
+                    correctAnswer: 1,
+                    explanation: "Showing respect to elders by holding your glass lower is essential"
+                },
+                {
+                    question: "Do you know Dimash Kudaibergen?",
+                    image: "https://placehold.co/400x300/7C3AED/FFFFFF?text=Compliment",
+                    options: ["Yes", "Yes"],
+                    correctAnswer: [1, 2], 
+                    explanation: "Yes"
+                },
+                {
+                    question: "Have you watched Borat?",
+                    image: "https://placehold.co/400x300/6B7280/FFFFFF?text=Borat",
+                    options: ["Yes", "No"],
+                    correctAnswer: 1,
+                    explanation: "Borat doesn't represent real Kazakh culture at all btw."
                 }
             ],
             zh: [
                 {
-                    question: "法国的首都是什么？",
-                    image: "https://placehold.co/400x300/4F46E5/FFFFFF?text=巴黎",
-                    options: ["伦敦", "柏林", "巴黎", "马德里"],
-                    correctAnswer: 2,
-                    explanation: "巴黎是法国的首都和人口最多的城市。"
-                },
-                {
-                    question: "哪个行星被称为红色星球？",
-                    image: "https://placehold.co/400x300/DC2626/FFFFFF?text=火星",
-                    options: ["金星", "火星", "木星", "土星"],
+                    question: "当哈萨克人说'去喝点茶吧'，意思是：",
+                    image: "https://placehold.co/400x300/8B5CF6/FFFFFF?text=喝茶时间",
+                    options: ["只是喝茶", "茶、10道菜和3小时的聊天"],
                     correctAnswer: 1,
-                    explanation: "火星因其表面的氧化铁（铁锈）而呈现红色。"
+                    explanation: "在哈萨克文化中，'喝点茶'是邀请你参加盛宴和长时间款待！"
                 },
                 {
-                    question: "世界上最大的哺乳动物是什么？",
-                    image: "https://placehold.co/400x300/059669/FFFFFF?text=蓝鲸",
-                    options: ["大象", "长颈鹿", "蓝鲸", "河马"],
-                    correctAnswer: 2,
-                    explanation: "蓝鲸是有史以来已知最大的动物。"
-                },
-                {
-                    question: "哪个元素的化学符号是'O'？",
-                    image: "https://placehold.co/400x300/7C3AED/FFFFFF?text=氧气",
-                    options: ["金", "氧气", "锇", "鿫"],
+                    question: "对哈萨克人'舅爹'是什么意思？",
+                    image: "https://placehold.co/400x300/EF4444/FFFFFF?text=Naǵashy",
+                    options: ["外卖小哥", "免费餐厅"],
                     correctAnswer: 1,
-                    explanation: "氧气对人类呼吸至关重要，其符号为'O'。"
+                    explanation: "Naǵashy指你母亲家的亲戚——他们有义务免费招待你！"
                 },
                 {
-                    question: "世界上最高的山峰是什么？",
-                    image: "https://placehold.co/400x300/1E40AF/FFFFFF?text=珠穆朗玛峰",
-                    options: ["K2", "干城章嘉峰", "珠穆朗玛峰", "洛子峰"],
-                    correctAnswer: 2,
-                    explanation: "珠穆朗玛峰海拔8,848.86米（29,031.7英尺）。"
-                },
-                {
-                    question: "哪个国家被称为日出之国？",
-                    image: "https://placehold.co/400x300/DC2626/FFFFFF?text=日本",
-                    options: ["中国", "韩国", "日本", "泰国"],
-                    correctAnswer: 2,
-                    explanation: "由于日本位于东方，被称为日出之国。"
-                },
-                {
-                    question: "地球上最大的海洋是什么？",
-                    image: "https://placehold.co/400x300/0891B2/FFFFFF?text=太平洋",
-                    options: ["大西洋", "印度洋", "北冰洋", "太平洋"],
+                    question: "数学题：如果被邀请7点参加婚礼，你应该几点到？",
+                    image: "https://placehold.co/400x300/10B981/FFFFFF?text=婚礼",
+                    options: ["6:30", "7:00", "8:00", "9:00"],
                     correctAnswer: 3,
-                    explanation: "太平洋覆盖面积超过6,000万平方英里。"
+                    explanation: "哈萨克时间很灵活！7点邀请意味着你可以随时到达，甚至9点."
                 },
                 {
-                    question: "哪种动物被称为'沙漠之舟'？",
-                    image: "https://placehold.co/400x300/F59E0B/FFFFFF?text=骆驼",
-                    options: ["马", "大象", "骆驼", "驴"],
-                    correctAnswer: 2,
-                    explanation: "骆驼适应沙漠环境，能承载重物。"
+                    question: "当有人说'（你来了吗？）'，他们实际上意思是：",
+                    image: "https://placehold.co/400x300/F59E0B/FFFFFF?text=问候",
+                    options: ["你到了吗？", "你去哪儿了？我想你了！"],
+                    correctAnswer: 1,
+                    explanation: "这不是问你是否到达，而是表达他们有多想念你！"
                 },
                 {
-                    question: "鳄梨酱的主要成分是什么？",
-                    image: "https://placehold.co/400x300/16A34A/FFFFFF?text=牛油果",
-                    options: ["番茄", "洋葱", "牛油果", "青柠"],
-                    correctAnswer: 2,
-                    explanation: "牛油果是鳄梨酱的主要成分，赋予其奶油般的质地。"
+                    question: "拜访哈萨克家庭时，你必须：",
+                    image: "https://placehold.co/400x300/06B6D4/FFFFFF?text=款待",
+                    options: ["带个小礼物", "拒绝食物3次后再接受"],
+                    correctAnswer: 1,
+                    explanation: "拒绝食物表示尊重，但他们会一直坚持直到你接受！"
                 },
                 {
-                    question: "哪位著名科学家提出了相对论？",
-                    image: "https://placehold.co/400x300/78716C/FFFFFF?text=爱因斯坦",
-                    options: ["艾萨克·牛顿", "伽利略·伽利莱", "阿尔伯特·爱因斯坦", "斯蒂芬·霍金"],
-                    correctAnswer: 2,
-                    explanation: "阿尔伯特·爱因斯坦用相对论彻底改变了物理学。"
+                    question: "在哈萨克达斯特卡汗（餐桌）上最重要的是：",
+                    image: "https://placehold.co/400x300/8B5CF6/FFFFFF?text=达斯特卡汗",
+                    options: ["有足够的椅子", "绝不让客人的盘子空着"],
+                    correctAnswer: 1,
+                    explanation: "好主人会不断给你添菜——这是尊重和关心的标志！"
+                },
+                {
+                    question: "如果哈萨克长辈给你马奶酒（kumys），你应该：",
+                    image: "https://placehold.co/400x300/16A34A/FFFFFF?text=马奶酒",
+                    options: ["礼貌拒绝", "全部喝完并要求再来一杯！"],
+                    correctAnswer: 1,
+                    explanation: "拒绝马奶酒可能被视为不尊重。最好至少尝试一点！"
+                },
+                {
+                    question: "在哈萨克庆祝活动中祝酒时，你应该：",
+                    image: "https://placehold.co/400x300/DC2626/FFFFFF?text=祝酒",
+                    options: ["快速喝完", "酒杯举得比长辈低"],
+                    correctAnswer: 1,
+                    explanation: "通过举低酒杯向长辈表示尊重是非常重要的！"
+                },
+                {
+                    question: "你知道di'ma'shi          correctAnswer: 3,
+                    explanation: "哈萨克时间很灵活！7点邀请意味着你可以随时到达，甚至9点."
+                },
+                {
+                    question: "当有人说'（你来了吗？）'，他们实际上意思是：",
+                    image: "https://placehold.co/400x300/F59E0B/FFFFFF?text=问候",
+                    options: ["你到了吗？", "你去哪儿了？我想你了！"],
+                    correctAnswer: 1,
+                    explanation: "这不是问你是否到达，而是表达他们有多想念你！"
+                },
+                {
+                    question: "拜访哈萨克家庭时，你必须：",
+                    image: "https://placehold.co/400x300/06B6D4/FFFFFF?text=款待",
+                    options: ["带个小礼物", "拒绝食物3次后再接受"],
+                    correctAnswer: 1,
+                    explanation: "拒绝食物表示尊重，但他们会一直坚持直到你接受！"
+                },
+                {
+                    question: "在哈萨克达斯特卡汗（餐桌）上最重要的是：",
+                    image: "https://placehold.co/400x300/8B5CF6/FFFFFF?text=达斯特卡汗",
+                    options: ["有足够的椅子", "绝不让客人的盘子空着"],
+                    correctAnswer: 1,
+                    explanation: "好主人会不断给你添菜——这是尊重和关心的标志！"
+                },
+                {
+                    question: "如果哈萨克长辈给你马奶酒（kumys），你应该：",
+                    image: "https://placehold.co/400x300/16A34A/FFFFFF?text=马奶酒",
+                    options: ["礼貌拒绝", "全部喝完并要求再来一杯！"],
+                    correctAnswer: 1,
+                    explanation: "拒绝马奶酒可能被视为不尊重。最好至少尝试一点！"
+                },
+                {
+                    question: "在哈萨克庆祝活动中祝酒时，你应该：",
+                    image: "https://placehold.co/400x300/DC2626/FFFFFF?text=祝酒",
+                    options: ["快速喝完", "酒杯举得比长辈低"],
+                    correctAnswer: 1,
+                    explanation: "通过举低酒杯向长辈表示尊重是非常重要的！"
+                },
+                {
+                    question: "你知道迪玛希是谁吗",
+                    image: "https://placehold.co/400x300/7C3AED/FFFFFF?text=赞美",
+                    options: ["知道", "是的"],
+                    correctAnswer: [1, 2],
+                    explanation: "当然"
+                },
+                {
+                    question: "你看过《波拉特》吗？",
+                    image: "https://placehold.co/400x300/6B7280/FFFFFF?text=波拉特",
+                    options: ["看过", "没看过"],
+                    correctAnswer: 1,
+                    explanation: "好选择！《波拉特》完全不能代表真正的哈萨克文化。"
                 }
             ]
         };
@@ -546,8 +599,7 @@
             // Results screen
             finalScore: document.getElementById('final-score'),
             resultsTitle: document.getElementById('results-title'),
-            resultsScore: document.getElementById('results-score'),
-            resultsInstruction: document.getElementById('results-instruction'),
+            resultsMessage: document.getElementById('results-message'),
             btnRestart: document.getElementById('btn-restart'),
             restartText: document.getElementById('restart-text')
         };
@@ -576,16 +628,12 @@
 
         function updateTranslations() {
             if (currentLanguage === 'en') {
-                elements.welcomeTitle.textContent = 'Welcome to Quiz!';
+                elements.welcomeTitle.textContent = 'Kazakh Culture Quiz!';
                 elements.nextText.textContent = currentQuestion === 9 ? 'View Results' : 'Next Question';
-                elements.resultsTitle.textContent = 'Congratulations!';
-                elements.resultsInstruction.textContent = 'Show this screen to the Kazakh students to get your prizes!';
                 elements.restartText.textContent = 'Take Quiz Again';
             } else {
-                elements.welcomeTitle.textContent = '欢迎参加测验！';
+                elements.welcomeTitle.textContent = '哈萨克文化测验！';
                 elements.nextText.textContent = currentQuestion === 9 ? '查看结果' : '下一题';
-                elements.resultsTitle.textContent = '恭喜！';
-                elements.resultsInstruction.textContent = '向哈萨克斯坦学生展示此屏幕以获得您的奖品！';
                 elements.restartText.textContent = '重新参加测验';
             }
         }
@@ -642,6 +690,18 @@
             userAnswers[currentQuestion] = optionIndex;
             showResult = true;
             
+            // Special handling for Borat question (last question)
+            if (currentQuestion === 9) {
+                if (optionIndex === 0) {
+                    // User said "Yes" to Borat - play siren
+                    try {
+                        sirenAudio.play().catch(e => console.log("Audio play failed:", e));
+                    } catch (e) {
+                        console.log("Siren audio not supported");
+                    }
+                }
+            }
+            
             // Show results for each option
             const options = elements.optionsContainer.querySelectorAll('.option');
             const questionData = quizData[currentLanguage][currentQuestion];
@@ -678,13 +738,26 @@
         function showResults() {
             const score = calculateScore();
             
-            // Update results screen
+            // Update results screen based on score
             elements.finalScore.textContent = `${score}/10`;
-            if (currentLanguage === 'en') {
-                elements.resultsScore.textContent = `${score}/10 Correct Answers!`;
+            
+            let message = "";
+            if (score >= 7) {
+                message = currentLanguage === 'en' 
+                    ? "<strong>You're Kazakh?</strong><br>Either you're actually Kazakh or you've been adopted by a Kazakh family for sure" 
+                    : "<strong>你是哈萨克人吗？</strong><br>要么你真的是哈萨克人，要么你已经被哈萨克家庭收养了. 真的真的";
+            } else if (score >= 5) {
+                message = currentLanguage === 'en' 
+                    ? "<strong>You have Kazakh blood!</strong><br>There's definitely some Kazakh heritage flowing in your veins broski" 
+                    : "<strong>你有哈萨克血统！</strong><br>你的血液中肯定流淌着哈萨克人的血脉！问问你父母吧。。。";
             } else {
-                elements.resultsScore.textContent = `${score}/10 正确答案！`;
+                message = currentLanguage === 'en' 
+                    ? "<strong>Find a Kazakh friend!</strong><br>Time to make some Kazakh friends bro" 
+                    : "<strong>找个哈萨克朋友！</strong><br>是时候交些哈萨克朋友，了解他们精彩的文化了！";
             }
+            
+            elements.resultsMessage.innerHTML = message;
+            elements.resultsTitle.textContent = currentLanguage === 'en' ? 'Results!' : '结果！';
             
             showScreen('results');
         }
