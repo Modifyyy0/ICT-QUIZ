@@ -280,17 +280,15 @@
             gap: 8px;
         }
 
-        .siren-container {
+        .siren-warning {
+            background: #fee2e2;
+            border: 2px solid #f87171;
+            border-radius: 16px;
+            padding: 16px;
+            margin: 16px 0;
+            color: #991b1b;
+            font-weight: 600;
             display: none;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .siren-text {
-            color: #dc2626;
-            font-size: 24px;
-            font-weight: bold;
-            margin: 10px 0;
         }
 
         @media (max-width: 480px) {
@@ -346,6 +344,9 @@
                 <h2 id="question-text" class="question-text"></h2>
                 <div id="options-container" class="options-container"></div>
                 <div id="explanation" class="explanation" style="display: none;"></div>
+                <div id="siren-warning" class="siren-warning">
+                    🚨 SIREN! You've been exposed to Borat! 🚨
+                </div>
                 <button id="btn-next" class="btn btn-next" disabled>
                     <span class="next-text">
                         <span id="next-text">Next Question</span>
@@ -374,10 +375,6 @@
     </div>
 
     <script>
-        // Create siren audio
-        const sirenAudio = new Audio();
-        sirenAudio.src = "audio/wav;base64,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";
-        
         // Quiz data
         const quizData = {
             en: [
@@ -386,70 +383,70 @@
                     image: "https://placehold.co/400x300/8B5CF6/FFFFFF?text=Tea+Time",
                     options: ["Just tea", "Tea, 10 dishes, and 3 hours of conversation"],
                     correctAnswer: 1,
-                    explanation: "In Kazakh culture, 'drink tea' is an invitation for a full feast."
+                    explanation: "In Kazakh culture, 'drink tea' is an invitation for a full feast and long hospitality!"
                 },
                 {
-                    question: "What does 'mother's brother' mean for Kazakhs?",
+                    question: "What does 'naǵashy' mean for Kazakhs?",
                     image: "https://placehold.co/400x300/EF4444/FFFFFF?text=Naǵashy",
                     options: ["Delivery guy", "Free restaurant"],
                     correctAnswer: 1,
-                    explanation: "Mother's side of the family are obligated to feed you for free."
+                    explanation: "Naǵashy refers to your mother's side of the family - they're obligated to feed you for free!"
                 },
                 {
                     question: "Math question: If invited to a wedding at 7 PM, you should arrive at:",
                     image: "https://placehold.co/400x300/10B981/FFFFFF?text=Wedding",
                     options: ["6:30 PM", "7:00 PM", "8:00 PM", "9:00 PM"],
                     correctAnswer: 3,
-                    explanation: "Kazakh time is flexible! 7 PM invitation means you can arrive anytime, even at 9."
+                    explanation: "Kazakh time is flexible! 7 PM invitation means you can arrive anytime, even at 9!"
                 },
                 {
-                    question: "If Kazakh people says (Did you come?), they actually mean:",
+                    question: "If someone says 'Keldiń be?' (Did you come?), they actually mean:",
                     image: "https://placehold.co/400x300/F59E0B/FFFFFF?text=Greetings",
                     options: ["Are you here?", "Where have you been? I missed you!"],
                     correctAnswer: 1,
-                    explanation: "It's not about your arrival, it's about expressing how much they missed you."
+                    explanation: "It's not about your arrival, it's about expressing how much they missed you!"
                 },
                 {
                     question: "When visiting a Kazakh home, you must:",
                     image: "https://placehold.co/400x300/06B6D4/FFFFFF?text=Hospitality",
                     options: ["Bring a small gift", "Refuse food 3 times before accepting"],
                     correctAnswer: 1,
-                    explanation: "Refusing food shows respect, but they'll insist until you accept."
+                    explanation: "Refusing food shows respect, but they'll insist until you accept!"
                 },
                 {
-                    question: "The most important thing at a Kazakh dining table is:",
+                    question: "The most important thing at a Kazakh dastarkhan (table) is:",
                     image: "https://placehold.co/400x300/8B5CF6/FFFFFF?text=Dastarkhan",
                     options: ["Having enough chairs", "Never letting the guest's plate be empty"],
                     correctAnswer: 1,
-                    explanation: "A good host keeps refilling your plate - it's a sign of respect and care, they will even give you their seats."
+                    explanation: "A good host keeps refilling your plate - it's a sign of respect and care!"
                 },
                 {
-                    question: "If a Kazakh elder offers you kumys (fermented horse's milk), you should:",
+                    question: "If a Kazakh elder offers you kumys (fermented mare's milk), you should:",
                     image: "https://placehold.co/400x300/16A34A/FFFFFF?text=Kumys",
-                    options: ["Politely decline", "Drink it all and ask for more."],
+                    options: ["Politely decline", "Drink it all and ask for more!"],
                     correctAnswer: 1,
-                    explanation: "Refusing kumys can be seen as disrespectful. Better to try at least a little bit"
+                    explanation: "Refusing kumys can be seen as disrespectful. Better to try at least a little!"
                 },
                 {
                     question: "When toasting at a Kazakh celebration, you should:",
                     image: "https://placehold.co/400x300/DC2626/FFFFFF?text=Toast",
                     options: ["Drink quickly", "Hold your glass lower than elders"],
                     correctAnswer: 1,
-                    explanation: "Showing respect to elders by holding your glass lower is essential"
+                    explanation: "Showing respect to elders by holding your glass lower is essential!"
                 },
                 {
-                    question: "Do you know Dimash Kudaibergen?",
+                    question: "If you compliment something in a Kazakh home, they will:",
                     image: "https://placehold.co/400x300/7C3AED/FFFFFF?text=Compliment",
-                    options: ["Yes", "Yes"],
-                    correctAnswer: [1, 2], 
-                    explanation: "Yes"
+                    options: ["Say thank you", "Try to give it to you immediately"],
+                    correctAnswer: 1,
+                    explanation: "Kazakh hospitality means if you like something, they'll insist you take it!"
                 },
                 {
                     question: "Have you watched Borat?",
                     image: "https://placehold.co/400x300/6B7280/FFFFFF?text=Borat",
                     options: ["Yes", "No"],
                     correctAnswer: 1,
-                    explanation: "Borat doesn't represent real Kazakh culture at all btw."
+                    explanation: "Good choice! Borat doesn't represent real Kazakh culture at all."
                 }
             ],
             zh: [
@@ -461,7 +458,7 @@
                     explanation: "在哈萨克文化中，'喝点茶'是邀请你参加盛宴和长时间款待！"
                 },
                 {
-                    question: "对哈萨克人'舅爹'是什么意思？",
+                    question: "哈萨克人所说的'naǵashy'是什么意思？",
                     image: "https://placehold.co/400x300/EF4444/FFFFFF?text=Naǵashy",
                     options: ["外卖小哥", "免费餐厅"],
                     correctAnswer: 1,
@@ -472,10 +469,10 @@
                     image: "https://placehold.co/400x300/10B981/FFFFFF?text=婚礼",
                     options: ["6:30", "7:00", "8:00", "9:00"],
                     correctAnswer: 3,
-                    explanation: "哈萨克时间很灵活！7点邀请意味着你可以随时到达，甚至9点."
+                    explanation: "哈萨克时间很灵活！7点邀请意味着你可以随时到达，甚至9点！"
                 },
                 {
-                    question: "当有人说'（你来了吗？）'，他们实际上意思是：",
+                    question: "当有人说'Keldiń be？'（你来了吗？），他们实际上意思是：",
                     image: "https://placehold.co/400x300/F59E0B/FFFFFF?text=问候",
                     options: ["你到了吗？", "你去哪儿了？我想你了！"],
                     correctAnswer: 1,
@@ -510,50 +507,11 @@
                     explanation: "通过举低酒杯向长辈表示尊重是非常重要的！"
                 },
                 {
-                    question: "你知道di'ma'shi          correctAnswer: 3,
-                    explanation: "哈萨克时间很灵活！7点邀请意味着你可以随时到达，甚至9点."
-                },
-                {
-                    question: "当有人说'（你来了吗？）'，他们实际上意思是：",
-                    image: "https://placehold.co/400x300/F59E0B/FFFFFF?text=问候",
-                    options: ["你到了吗？", "你去哪儿了？我想你了！"],
-                    correctAnswer: 1,
-                    explanation: "这不是问你是否到达，而是表达他们有多想念你！"
-                },
-                {
-                    question: "拜访哈萨克家庭时，你必须：",
-                    image: "https://placehold.co/400x300/06B6D4/FFFFFF?text=款待",
-                    options: ["带个小礼物", "拒绝食物3次后再接受"],
-                    correctAnswer: 1,
-                    explanation: "拒绝食物表示尊重，但他们会一直坚持直到你接受！"
-                },
-                {
-                    question: "在哈萨克达斯特卡汗（餐桌）上最重要的是：",
-                    image: "https://placehold.co/400x300/8B5CF6/FFFFFF?text=达斯特卡汗",
-                    options: ["有足够的椅子", "绝不让客人的盘子空着"],
-                    correctAnswer: 1,
-                    explanation: "好主人会不断给你添菜——这是尊重和关心的标志！"
-                },
-                {
-                    question: "如果哈萨克长辈给你马奶酒（kumys），你应该：",
-                    image: "https://placehold.co/400x300/16A34A/FFFFFF?text=马奶酒",
-                    options: ["礼貌拒绝", "全部喝完并要求再来一杯！"],
-                    correctAnswer: 1,
-                    explanation: "拒绝马奶酒可能被视为不尊重。最好至少尝试一点！"
-                },
-                {
-                    question: "在哈萨克庆祝活动中祝酒时，你应该：",
-                    image: "https://placehold.co/400x300/DC2626/FFFFFF?text=祝酒",
-                    options: ["快速喝完", "酒杯举得比长辈低"],
-                    correctAnswer: 1,
-                    explanation: "通过举低酒杯向长辈表示尊重是非常重要的！"
-                },
-                {
-                    question: "你知道迪玛希是谁吗",
+                    question: "如果你赞美哈萨克人家里的某样东西，他们会：",
                     image: "https://placehold.co/400x300/7C3AED/FFFFFF?text=赞美",
-                    options: ["知道", "是的"],
-                    correctAnswer: [1, 2],
-                    explanation: "当然"
+                    options: ["说谢谢", "立即试图把它送给你"],
+                    correctAnswer: 1,
+                    explanation: "哈萨克好客意味着如果你喜欢某样东西，他们会坚持让你带走！"
                 },
                 {
                     question: "你看过《波拉特》吗？",
@@ -593,6 +551,7 @@
             questionText: document.getElementById('question-text'),
             optionsContainer: document.getElementById('options-container'),
             explanation: document.getElementById('explanation'),
+            sirenWarning: document.getElementById('siren-warning'),
             btnNext: document.getElementById('btn-next'),
             nextText: document.getElementById('next-text'),
             
@@ -671,8 +630,9 @@
                 elements.optionsContainer.appendChild(optionDiv);
             });
             
-            // Hide explanation and disable next button
+            // Hide explanation, siren warning and disable next button
             elements.explanation.style.display = 'none';
+            elements.sirenWarning.style.display = 'none';
             elements.btnNext.disabled = true;
             
             // Update next button text
@@ -691,15 +651,9 @@
             showResult = true;
             
             // Special handling for Borat question (last question)
-            if (currentQuestion === 9) {
-                if (optionIndex === 0) {
-                    // User said "Yes" to Borat - play siren
-                    try {
-                        sirenAudio.play().catch(e => console.log("Audio play failed:", e));
-                    } catch (e) {
-                        console.log("Siren audio not supported");
-                    }
-                }
+            if (currentQuestion === 9 && optionIndex === 0) {
+                // User said "Yes" to Borat - show visual siren warning instead of audio
+                elements.sirenWarning.style.display = 'block';
             }
             
             // Show results for each option
@@ -744,15 +698,15 @@
             let message = "";
             if (score >= 7) {
                 message = currentLanguage === 'en' 
-                    ? "<strong>You're Kazakh?</strong><br>Either you're actually Kazakh or you've been adopted by a Kazakh family for sure" 
-                    : "<strong>你是哈萨克人吗？</strong><br>要么你真的是哈萨克人，要么你已经被哈萨克家庭收养了. 真的真的";
+                    ? "<strong>You're Kazakh?</strong><br>Either you're actually Kazakh or you've been adopted by a Kazakh family!" 
+                    : "<strong>你是哈萨克人吗？</strong><br>要么你真的是哈萨克人，要么你已经被哈萨克家庭收养了！";
             } else if (score >= 5) {
                 message = currentLanguage === 'en' 
-                    ? "<strong>You have Kazakh blood!</strong><br>There's definitely some Kazakh heritage flowing in your veins broski" 
-                    : "<strong>你有哈萨克血统！</strong><br>你的血液中肯定流淌着哈萨克人的血脉！问问你父母吧。。。";
+                    ? "<strong>You have Kazakh blood!</strong><br>There's definitely some Kazakh heritage flowing in your veins!" 
+                    : "<strong>你有哈萨克血统！</strong><br>你的血液中肯定流淌着哈萨克人的血脉！";
             } else {
                 message = currentLanguage === 'en' 
-                    ? "<strong>Find a Kazakh friend!</strong><br>Time to make some Kazakh friends bro" 
+                    ? "<strong>Find a Kazakh friend!</strong><br>Time to make some Kazakh friends and learn about their amazing culture!" 
                     : "<strong>找个哈萨克朋友！</strong><br>是时候交些哈萨克朋友，了解他们精彩的文化了！";
             }
             
